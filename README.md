@@ -1,2 +1,2 @@
 # games
-Fichechos Jsons de Partidos
+Ficheros Jsons de Partidos
