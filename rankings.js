@@ -94,11 +94,35 @@ function setupMobileMenu() {
  * Funciones principales
  ***************************************/
 async function fetchMatchFiles() {
-  const apiUrl = "https://api.github.com/repos/emebullon/mini2025/contents/";
+  const timestamp = new Date().getTime();
+  const apiUrl = `https://api.github.com/repos/emebullon/mini2025/contents/json?timestamp=${timestamp}`;
   try {
-    const response = await fetch(apiUrl);
+    console.log("Fetching from URL:", apiUrl);
+    const response = await fetch(apiUrl, {
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
     const files = await response.json();
-    return files.filter(file => file.name.endsWith(".json")).map(file => file.download_url);
+    console.log("Received files:", files);
+    
+    if (!Array.isArray(files)) {
+      console.error("Expected array of files but got:", files);
+      return [];
+    }
+    
+    const jsonFiles = files
+      .filter(file => file.name.endsWith(".json"))
+      .map(file => `${file.download_url}?timestamp=${timestamp}`);
+    
+    console.log("JSON files to load:", jsonFiles);
+    return jsonFiles;
   } catch (error) {
     console.error("Error al obtener la lista de archivos:", error);
     return [];
